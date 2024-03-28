@@ -1,4 +1,4 @@
-module github.com/gdygd/goshm/shm/shmwin
+module github.com/gdygd/goshm/shmwin
 
 go 1.21.5
 
