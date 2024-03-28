@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"unsafe"
 
-	"github.com/gdygd/goshm/shm/shmwin"
+	"github.com/gdygd/goshm/shmwin"
 )
 
 //var shminst shm.ShmHnd
