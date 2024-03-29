@@ -18,7 +18,7 @@ type ShmMem struct {
 
 var SharedMem *ShmMem
 
-func main() {
+func Example() {
 	shminst := shmwin.NewWinShm()
 
 	shminst.InitShm("shmygd", 1024)
