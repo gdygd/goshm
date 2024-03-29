@@ -41,7 +41,7 @@ const (
 )
 
 type Linuxshm struct {
-	Id   int
+	Id   uintptr
 	Addr uintptr // memory pointer
 	Size int     // allocate memory size
 	Skey string  // shared memory key
@@ -58,6 +58,8 @@ func (m *Linuxshm) InitShm(skey string, size int) {
 
 func (m *Linuxshm) CreateShm() error {
 
+	fmt.Println("CreateShm ..")
+
 	id, _, errno := syscall.Syscall(sysShmGet, uintptr(int32(IPC_CREAT)), uintptr(int32(m.Size)), uintptr(int32(MEM_READWRITE)))
 	if int(id) == -1 {
 		// Check shm already was made memory
@@ -66,24 +68,31 @@ func (m *Linuxshm) CreateShm() error {
 		if int(id) == -1 {
 			errmsg := fmt.Sprintf("CreateShm..err: %s", errno.Error())
 			err := os.NewSyscallError(errmsg, nil)
-			closehandleL(int(id))
+			closehandleL(id)
 			return err
 		}
 	}
 
+	fmt.Println("CreateShm ..id:", id)
+
+	m.Id = id
 	//return int(id), nil
 	return nil
 }
 
 func (m *Linuxshm) AttachShm() error {
 
+	fmt.Println("AttachShm ..id:", m.Id)
+
 	addr, _, errno := syscall.Syscall(sysShmAt, uintptr(int32(m.Id)), 0, uintptr(int32(MEM_READWRITE)))
 	if int(addr) == -1 {
 		errmsg := fmt.Sprintf("AttachShm..err: %s", errno.Error())
 		err := os.NewSyscallError(errmsg, nil)
-		closehandleL(int(m.Id))
+		closehandleL(m.Id)
 		return err
 	}
+
+	fmt.Println("AttachShm ..addr:", addr)
 
 	m.Addr = addr
 
@@ -110,7 +119,7 @@ func (m *Linuxshm) detachShm() error {
 	if int(result) == -1 {
 		errmsg := fmt.Sprintf("detachShm..err: %s", errno.Error())
 		err := os.NewSyscallError(errmsg, nil)
-		closehandleL(int(m.Id))
+		closehandleL(m.Id)
 		return err
 	}
 
@@ -120,7 +129,7 @@ func (m *Linuxshm) detachShm() error {
 	return nil
 }
 
-func closehandleL(id int) (int, error) {
+func closehandleL(id uintptr) (int, error) {
 
 	if id <= 0 {
 		return 0, nil
