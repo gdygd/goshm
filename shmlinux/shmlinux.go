@@ -94,10 +94,11 @@ func (m *Linuxshm) AttachShm() error {
 	return nil
 }
 
-func (m *Linuxshm) DeleteShm() {
+func (m *Linuxshm) DeleteShm() error {
 	// detachshm
 	// close handle
-	m.detachShm()
+	err := m.detachShm()
+	return err
 }
 
 func (m *Linuxshm) detachShm() error {
