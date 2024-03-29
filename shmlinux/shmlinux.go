@@ -58,10 +58,10 @@ func (m *Linuxshm) InitShm(skey string, size int) {
 
 func (m *Linuxshm) CreateShm() error {
 
-	id, _, errno := syscall.SyscallN(sysShmGet, uintptr(int32(IPC_CREAT)), uintptr(int32(m.Size)), uintptr(int32(MEM_READWRITE)))
+	id, _, errno := syscall.Syscall(sysShmGet, uintptr(int32(IPC_CREAT)), uintptr(int32(m.Size)), uintptr(int32(MEM_READWRITE)))
 	if int(id) == -1 {
 		// Check shm already was made memory
-		id, _, errno = syscall.SyscallN(sysShmGet, uintptr(int32(IPC_PRIVATE)), uintptr(int32(m.Size)), uintptr(int32(MEM_READWRITE)))
+		id, _, errno = syscall.Syscall(sysShmGet, uintptr(int32(IPC_PRIVATE)), uintptr(int32(m.Size)), uintptr(int32(MEM_READWRITE)))
 
 		if int(id) == -1 {
 			errmsg := fmt.Sprintf("CreateShm..err: %s", errno.Error())
@@ -77,7 +77,7 @@ func (m *Linuxshm) CreateShm() error {
 
 func (m *Linuxshm) AttachShm() error {
 
-	addr, _, errno := syscall.SyscallN(sysShmAt, uintptr(int32(m.Id)), 0, uintptr(int32(MEM_READWRITE)))
+	addr, _, errno := syscall.Syscall(sysShmAt, uintptr(int32(m.Id)), 0, uintptr(int32(MEM_READWRITE)))
 	if int(addr) == -1 {
 		errmsg := fmt.Sprintf("AttachShm..err: %s", errno.Error())
 		err := os.NewSyscallError(errmsg, nil)
@@ -105,7 +105,7 @@ func (m *Linuxshm) detachShm() error {
 	// init Addr	(Addr memory pointer)
 	// init SKey	(SKey : shared memory key)
 
-	result, _, errno := syscall.SyscallN(sysShmDt, uintptr(unsafe.Pointer(m.Addr)), 0, 0)
+	result, _, errno := syscall.Syscall(sysShmDt, uintptr(unsafe.Pointer(m.Addr)), 0, 0)
 	if int(result) == -1 {
 		errmsg := fmt.Sprintf("detachShm..err: %s", errno.Error())
 		err := os.NewSyscallError(errmsg, nil)
@@ -125,7 +125,7 @@ func closehandleL(id int) (int, error) {
 		return 0, nil
 	}
 
-	result, _, errno := syscall.SyscallN(sysShmCtl, uintptr(int32(id)), uintptr(int32(IPC_RMID)), uintptr(unsafe.Pointer(nil)))
+	result, _, errno := syscall.Syscall(sysShmCtl, uintptr(int32(id)), uintptr(int32(IPC_RMID)), uintptr(unsafe.Pointer(nil)))
 	if int(result) == -1 {
 		return -1, errno
 	}
