@@ -1,4 +1,4 @@
-package goshm
+package main
 
 import (
 	"fmt"
@@ -18,7 +18,7 @@ type ShmMem struct {
 
 var SharedMem *ShmMem
 
-func Example() {
+func main() {
 	shminst := shmwin.NewWinShm()
 
 	shminst.InitShm("shmygd", 1024)
