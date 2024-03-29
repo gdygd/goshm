@@ -38,20 +38,22 @@ const (
 	IPC_SET = 1
 	// Get `ipc_perm' options.
 	IPC_STAT = 2
+
+	USERKEY = 0x1234
 )
 
 type Linuxshm struct {
 	Id   uintptr
 	Addr uintptr // memory pointer
 	Size int     // allocate memory size
-	Skey string  // shared memory key
+	Skey int     // shared memory key
 }
 
 func NewLinuxShm() *Linuxshm {
 	return &Linuxshm{}
 }
 
-func (m *Linuxshm) InitShm(skey string, size int) {
+func (m *Linuxshm) InitShm(skey int, size int) {
 	m.Size = size
 	m.Skey = skey
 }
@@ -60,20 +62,25 @@ func (m *Linuxshm) CreateShm() error {
 
 	fmt.Println("CreateShm ..")
 
-	id, _, errno := syscall.Syscall(sysShmGet, uintptr(int32(IPC_CREAT)), uintptr(int32(m.Size)), uintptr(int32(MEM_READWRITE)))
-	if int(id) == -1 {
+	id, _, errno := syscall.Syscall(sysShmGet, uintptr(int32(m.Skey)), uintptr(int32(m.Size)), uintptr(int32(MEM_READWRITE|IPC_CREAT)))
+	fmt.Println("CreateShm#1 : ", id)
+	//if int(id) == -1 {
+	if int(id) <= 0 {
+		fmt.Println("CreateShm#2 : ", id)
 		// Check shm already was made memory
-		id, _, errno = syscall.Syscall(sysShmGet, uintptr(int32(IPC_PRIVATE)), uintptr(int32(m.Size)), uintptr(int32(MEM_READWRITE)))
+		id, _, errno = syscall.Syscall(sysShmGet, uintptr(int32(m.Skey)), uintptr(int32(m.Size)), uintptr(int32(MEM_READWRITE)))
 
+		fmt.Println("CreateShm#3 : ", id)
 		if int(id) == -1 {
 			errmsg := fmt.Sprintf("CreateShm..err: %s", errno.Error())
 			err := os.NewSyscallError(errmsg, nil)
 			closehandleL(id)
 			return err
 		}
+		fmt.Println("CreateShm#4 : ", id)
 	}
 
-	fmt.Println("CreateShm ..id:", id)
+	fmt.Println("CreateShm#5 ..id:", id)
 
 	m.Id = id
 	//return int(id), nil

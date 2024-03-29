@@ -1,10 +1,10 @@
-package main
+package goshm
 
 import (
 	"fmt"
 	"unsafe"
 
-	"github.com/gdygd/goshm/shmwin"
+	"github.com/gdygd/goshm/shmlinux"
 )
 
 //var shminst shm.ShmHnd
@@ -18,10 +18,12 @@ type ShmMem struct {
 
 var SharedMem *ShmMem
 
-func main() {
-	shminst := shmwin.NewWinShm()
+const skey = 0x1234
 
-	shminst.InitShm("shmygd", 1024)
+func example_prc_linux1() {
+	shminst := shmlinux.NewLinuxShm()
+
+	shminst.InitShm(skey, 1024)
 
 	err := shminst.CreateShm()
 	if err != nil {
