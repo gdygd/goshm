@@ -60,27 +60,27 @@ func (m *Linuxshm) InitShm(skey int, size int) {
 
 func (m *Linuxshm) CreateShm() error {
 
-	fmt.Println("CreateShm ..")
+	//fmt.Println("CreateShm ..")
 
 	id, _, errno := syscall.Syscall(sysShmGet, uintptr(int32(m.Skey)), uintptr(int32(m.Size)), uintptr(int32(MEM_READWRITE|IPC_CREAT)))
-	fmt.Println("CreateShm#1 : ", id)
+	//fmt.Println("CreateShm#1 : ", id)
 	//if int(id) == -1 {
 	if int(id) <= 0 {
-		fmt.Println("CreateShm#2 : ", id)
+		//fmt.Println("CreateShm#2 : ", id)
 		// Check shm already was made memory
 		id, _, errno = syscall.Syscall(sysShmGet, uintptr(int32(m.Skey)), uintptr(int32(m.Size)), uintptr(int32(MEM_READWRITE)))
 
-		fmt.Println("CreateShm#3 : ", id)
+		//fmt.Println("CreateShm#3 : ", id)
 		if int(id) == -1 {
 			errmsg := fmt.Sprintf("CreateShm..err: %s", errno.Error())
 			err := os.NewSyscallError(errmsg, nil)
 			closehandleL(id)
 			return err
 		}
-		fmt.Println("CreateShm#4 : ", id)
+		//fmt.Println("CreateShm#4 : ", id)
 	}
 
-	fmt.Println("CreateShm#5 ..id:", id)
+	//fmt.Println("CreateShm#5 ..id:", id)
 
 	m.Id = id
 	//return int(id), nil
@@ -89,7 +89,7 @@ func (m *Linuxshm) CreateShm() error {
 
 func (m *Linuxshm) AttachShm() error {
 
-	fmt.Println("AttachShm ..id:", m.Id)
+	//fmt.Println("AttachShm ..id:", m.Id)
 
 	addr, _, errno := syscall.Syscall(sysShmAt, uintptr(int32(m.Id)), 0, uintptr(int32(MEM_READWRITE)))
 	if int(addr) == -1 {
@@ -99,7 +99,7 @@ func (m *Linuxshm) AttachShm() error {
 		return err
 	}
 
-	fmt.Println("AttachShm ..addr:", addr)
+	//fmt.Println("AttachShm ..addr:", addr)
 
 	m.Addr = addr
 
